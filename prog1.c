@@ -2,17 +2,28 @@
 #include <stdlib.h>
 
 int main(void) {
-    int *data = malloc(5 * sizeof(int));   // ilkin qiymət verilmir
+    int *data = calloc(5, sizeof(int));    /* calloc yaddaşı sıfırlayır */
+    if (data == NULL) {
+        fprintf(stderr, "Yaddas ayrilmadi\n");
+        return 1;
+    }
     int sum = 0;
     for (int i = 0; i < 5; i++)
-        sum += data[i];                    // başlanmamış yaddaşın oxunması
-    if (sum > 0)                           // Valgrind burada xəbərdarlıq verəcək
+        sum += data[i];
+    if (sum > 0)
         printf("Sum is positive\n");
     else
         printf("Sum = %d\n", sum);
 
-    char *buf = malloc(100);               // heç vaxt free() edilmir
+    char *buf = malloc(100);
+    if (buf == NULL) {
+        free(data);
+        return 1;
+    }
     snprintf(buf, 100, "leak test");
     printf("%s\n", buf);
-    return 0;                              // yaddaş sızması: data və buf
+
+    free(buf);                             /* sızma aradan qaldırıldı */
+    free(data);
+    return 0;
 }
